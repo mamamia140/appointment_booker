@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from email_sender import MailServer
@@ -26,7 +27,8 @@ element_xpaths = [
 ]
 
 load_dotenv()
-
+opts = FirefoxOptions()
+opts.add_argument("--headless")
 mailserver = MailServer()
 mailserver.authenticate()
 
@@ -67,7 +69,7 @@ def check_if_there_is_available_appointment_slot(list_of_doctors):
         mailserver.send_mail()
 
 def task():
-    driver = webdriver.Firefox()
+    driver = webdriver.Firefox(options=opts)
     driver.get(SITE_URL)
     try:
         fill_in_the_blanks(driver)
