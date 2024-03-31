@@ -28,7 +28,7 @@ element_xpaths = [
 
 load_dotenv()
 chrome_options = webdriver.ChromeOptions()
-chrome_options.set_capability('browserless:token', 'YOUR-API-TOKEN')
+chrome_options.set_capability('browserless:token', os.getenv("BROWSERLESS_TOKEN"))
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--headless")
 mailserver = MailServer()
