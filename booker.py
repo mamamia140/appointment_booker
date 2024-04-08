@@ -27,10 +27,8 @@ element_xpaths = [
 ]
 
 load_dotenv()
-chrome_options = webdriver.ChromeOptions()
-chrome_options.set_capability('browserless:token', os.getenv("BROWSERLESS_TOKEN"))
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--headless")
+opts = FirefoxOptions()
+opts.add_argument("--headless")
 mailserver = MailServer()
 mailserver.authenticate()
 
@@ -71,7 +69,7 @@ def check_if_there_is_available_appointment_slot(list_of_doctors):
         mailserver.send_mail()
 
 def task():
-    driver = webdriver.Remote(command_executor='https://chrome.browserless.io/webdriver',options=chrome_options)
+    driver = webdriver.Firefox(options=opts)
     driver.get(SITE_URL)
     try:
         fill_in_the_blanks(driver)
