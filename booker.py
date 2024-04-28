@@ -22,13 +22,12 @@ element_xpaths = [
     '/html/body/div[1]/div/div[1]/button',
     '//*[@id="login"]',
     '//*[@id="OgretimUyeRandevu"]',
-    '/html/body/div/div[7]/div/div/div[5]/div/div/span',
-    '/html/body/div/div[5]/div/div[2]/ul/li'
+    '/html/body/div/div[7]/div/div/div[3]/div/div/span',
+    '/html/body/div/div[5]/div/div[2]/ul/li[3]'
 ]
 
 load_dotenv()
 opts = FirefoxOptions()
-opts.add_argument("--headless")
 mailserver = MailServer()
 mailserver.authenticate()
 
