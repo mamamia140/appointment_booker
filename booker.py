@@ -49,6 +49,7 @@ def fill_in_the_blanks(driver):
 def navigate_to_the_appointments(driver):
     for xpath in element_xpaths:
         try:
+            print(xpath)
             time.sleep(2)
             WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.XPATH,"//div[@class='blockUI blockOverlay']")))
             WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
