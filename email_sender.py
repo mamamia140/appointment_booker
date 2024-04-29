@@ -34,8 +34,6 @@ class MailServer(smtplib.SMTP):
         self.message['From'] = self.sender
         self.message['To'] = self.receiver
 
-        print(self.message.keys())
-        print(self.message.values())
 
     def authenticate(self):
         self.login(self.sender,self.password)

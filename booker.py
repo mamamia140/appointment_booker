@@ -28,6 +28,7 @@ element_xpaths = [
 
 load_dotenv()
 opts = FirefoxOptions()
+opts.add_argument("--headless")
 mailserver = MailServer()
 mailserver.authenticate()
 stop_condition = False
