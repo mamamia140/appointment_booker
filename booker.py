@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from email_sender import MailServer
 from dotenv import load_dotenv
+import schedule
 import time
 import os
 
@@ -19,7 +20,6 @@ INPUT_FIELDS = {
 }
 
 element_xpaths = [
-    '/html/body/div[1]/div/div[1]/button',
     '//*[@id="login"]',
     '//*[@id="OgretimUyeRandevu"]',
     '/html/body/div/div[7]/div/div/div[3]/div/div/span',
@@ -30,9 +30,14 @@ load_dotenv()
 opts = FirefoxOptions()
 mailserver = MailServer()
 mailserver.authenticate()
+stop_condition = False
 
 def get_env_var(name):
     return os.getenv(name)
+
+def close_the_popup_page(driver):
+    time.sleep(10)
+    driver.execute_script("CloseLoginInfo()")
 
 def fill_in_the_blanks(driver):
     for key, xpath in INPUT_FIELDS.items():
@@ -41,12 +46,12 @@ def fill_in_the_blanks(driver):
         else:
             driver.find_element(By.XPATH, xpath).send_keys(get_env_var(key))
 
-def navigate_to_the_ent_appointments(driver):
+def navigate_to_the_appointments(driver):
     for xpath in element_xpaths:
         try:
-            time.sleep(5)
-            element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath)))
-            element.click()
+            time.sleep(2)
+            WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.XPATH,"//div[@class='blockUI blockOverlay']")))
+            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
         except Exception as e:
             raise e
     
@@ -60,22 +65,31 @@ def check_if_there_is_available_appointment_slot(list_of_doctors):
     for li in list_of_doctors:
         doctor, state = li.find_elements(By.TAG_NAME,'span')
         if(state.text != "Dolu"):
-            list_of_available_doctors = list_of_available_doctors + doctor.get_attribute("data-poliklinik") + "\n"
+            list_of_available_doctors = list_of_available_doctors + doctor.get_attribute("data-poliklinik") + "\r\n"
             print("Doctor:{}, State:{}".format(doctor.get_attribute("data-poliklinik"), state.text))
     
     if(list_of_available_doctors != ""):
-        mailserver.message.set_content("List of available doctors:\n" + list_of_available_doctors)
+        mailserver.message.set_content("List of available doctors:\r\n" + list_of_available_doctors)
         mailserver.send_mail()
+        return True
+    return False
 
 def task():
     driver = webdriver.Firefox(options=opts)
     driver.get(SITE_URL)
     try:
+        close_the_popup_page(driver)
         fill_in_the_blanks(driver)
-        navigate_to_the_ent_appointments(driver)
-        check_if_there_is_available_appointment_slot(get_the_list_of_doctors(driver))
+        navigate_to_the_appointments(driver)
+        stop_condition = check_if_there_is_available_appointment_slot(get_the_list_of_doctors(driver))
     except Exception as e:
         print(f"An error was encountered while navigating to the appointment page\nERROR message: {e.msg}")
     finally:
         print("Closing the driver")
         driver.quit()
+        if(stop_condition==True):
+            return schedule.CancelJob
+
+def test():
+    mailserver.message.set_content("List of available doctors")
+    mailserver.send_mail()

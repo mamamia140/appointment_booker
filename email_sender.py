@@ -29,10 +29,13 @@ class MailServer(smtplib.SMTP):
         super().__init__(host=SMTP_SERVER_ADDRESS, port= SMTP_SERVER_PORT)
         self.context = ssl.create_default_context()
         self.starttls(context=self.context)
-        self.message.set_content("this is a message")
+        self.message['Content-Type'] = 'text/plain'
         self.message['Subject'] = 'There is an available appointment slot'
         self.message['From'] = self.sender
         self.message['To'] = self.receiver
+
+        print(self.message.keys())
+        print(self.message.values())
 
     def authenticate(self):
         self.login(self.sender,self.password)
