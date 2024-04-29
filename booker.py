@@ -31,7 +31,6 @@ opts = FirefoxOptions()
 opts.add_argument("--headless")
 mailserver = MailServer()
 mailserver.authenticate()
-stop_condition = False
 
 def get_env_var(name):
     return os.getenv(name)
@@ -76,6 +75,7 @@ def check_if_there_is_available_appointment_slot(list_of_doctors):
     return False
 
 def task():
+    stop_condition = False
     driver = webdriver.Firefox(options=opts)
     driver.get(SITE_URL)
     try:
