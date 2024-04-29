@@ -51,8 +51,10 @@ def navigate_to_the_appointments(driver):
         try:
             print(xpath)
             time.sleep(2)
+            print(driver.find_element(By.XPATH, "//div[@class='blockUI blockOverlay']"))
             WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.XPATH,"//div[@class='blockUI blockOverlay']")))
             WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
+            print("end")
         except Exception as e:
             raise e
     
