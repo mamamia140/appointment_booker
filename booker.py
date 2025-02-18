@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from email_sender import MailServer
 from dotenv import load_dotenv
+import re
 import schedule
 import time
 import os
@@ -21,16 +22,15 @@ INPUT_FIELDS = {
 
 element_xpaths = [
     '//*[@id="login"]',
-    '//*[@id="OgretimUyeRandevu"]',
-    '/html/body/div/div[7]/div/div/div[3]/div/div/span',
-    '/html/body/div/div[5]/div/div[2]/ul/li[3]'
+    '//*[@id="normalRandevu"]',
+    '//*[@id="SubeSecimi"]/div/div[3]',
+    '//*[@id="branslar"]/div/div[2]/ul/li[9]/a'
 ]
 
 load_dotenv()
 opts = FirefoxOptions()
-opts.add_argument("--headless")
-mailserver = MailServer()
-mailserver.authenticate()
+#mailserver = MailServer()
+#mailserver.authenticate()
 
 def get_env_var(name):
     return os.getenv(name)
@@ -60,21 +60,33 @@ def navigate_to_the_appointments(driver):
     
 
 def get_the_list_of_doctors(driver):
-    return driver.find_element(By.XPATH, '/html/body/div/div[6]/div/ul').find_elements(By.TAG_NAME,"li")
+    all_doctors = driver.find_element(By.XPATH, '/html/body/div/div[6]/div/ul').find_elements(By.TAG_NAME,"li")
+    # pattern = re.compile(r'(genel\s+Cerrahi|genel\s+cer.)', re.IGNORECASE)
+    # doctors_with_genel_cerrahi = [doctor for doctor in all_doctors if pattern.search(doctor.text)]
+    #return doctors_with_genel_cerrahi
+    return [doctor for doctor in all_doctors]
 
 def check_if_there_is_available_appointment_slot(list_of_doctors):
     print("checking")
     list_of_available_doctors = ""
     for li in list_of_doctors:
-        doctor, state = li.find_elements(By.TAG_NAME,'span')
+        '''doctor, state = li.find_elements(By.TAG_NAME,'span')
+        
         if(state.text != "Dolu"):
             list_of_available_doctors = list_of_available_doctors + doctor.get_attribute("data-poliklinik") + "\r\n"
             print("Doctor:{}, State:{}".format(doctor.get_attribute("data-poliklinik"), state.text))
-    
+        '''
+        state = li.find_element(By.TAG_NAME,'span')
+        print("State:{}".format(state.text))
+        if(state.text != "Dolu"):
+            list_of_available_doctors = list_of_available_doctors + li.text + "\r\n"
     if(list_of_available_doctors != ""):
-        mailserver.message.set_content("List of available doctors:\r\n" + list_of_available_doctors)
-        mailserver.send_mail()
+        '''mailserver.message.set_content("List of available doctors:\r\n" + list_of_available_doctors)
+        mailserver.send_mail()'''
+        print("There is an available appointment slot")
         return True
+    else:
+        print("No available doctor")
     return False
 
 def task():
